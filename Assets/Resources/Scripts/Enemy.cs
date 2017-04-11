@@ -22,20 +22,28 @@ public class Enemy : MonoBehaviour {
 	protected EnemyStates currentState;
 	protected Rigidbody2D rigidBody;
 	protected Animator animator;
+	protected Collider2D myCollider;
 
 	protected float currentHealth = 0;
 	protected float moveSpeed = 0;
 
 	void Awake(){
-		rigidBody = this.GetComponent<Rigidbody2D> ();
-		animator = this.GetComponent<Animator> ();
+		
 	}
 		
 	void Start () {
+		Init ();
+	}
+
+	public virtual void Init(){
+		rigidBody = this.GetComponent<Rigidbody2D> ();
+		animator = this.GetComponent<Animator> ();
+		myCollider = this.GetComponent<Collider2D> ();
 		currentHealth = maxHealth;
 		moveSpeed = startMovespeed;
 		currentState = EnemyStates.Walking;
 		animator.SetFloat ("Health", currentHealth);
+		myCollider.enabled = true;
 	}
 
 	void Update () {
@@ -58,6 +66,8 @@ public class Enemy : MonoBehaviour {
 			}
 		}
 
+		myCollider.enabled = !(currentState == EnemyStates.Dragging);
+
 
 	}
 
@@ -68,7 +78,7 @@ public class Enemy : MonoBehaviour {
 	}
 
 	//Trocar depois
-
+	/*
 	void OnMouseDown(){
 		Grab ();
 
@@ -77,13 +87,17 @@ public class Enemy : MonoBehaviour {
 	void OnMouseUp(){
 		Release ();
 	}
+	*/
 
-	protected void Grab(){
+	public void Grab(){
+		if (currentState == EnemyStates.Dead) {
+			return;
+		}
 		currentState = EnemyStates.Dragging;
 		animator.SetBool ("Dragging", true);
 	}
 
-	protected void Release(){
+	public void Release(){
 		currentState = EnemyStates.Falling;
 		animator.SetBool ("Dragging", false);
 	}
@@ -111,15 +125,15 @@ public class Enemy : MonoBehaviour {
 
 
 
-	protected void OnStartDie(){
+	protected virtual void OnStartDie(){
 		currentState = EnemyStates.Dead;
 	}
 
-	protected void OnEndDie(){
+	protected virtual void OnEndDie(){
 		gameObject.SetActive (false);
 	}
 
-	protected void TakeDamage(float damage){
+	protected virtual void TakeDamage(float damage){
 		currentHealth -= damage;
 		animator.SetFloat ("Health", currentHealth);
 	}
