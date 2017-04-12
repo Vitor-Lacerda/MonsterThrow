@@ -5,7 +5,7 @@ using UnityEngine;
 public class BigEnemy : Enemy {
 
 
-	protected bool reeling = false;
+	//protected bool reeling = false;
 
 
 	void Awake(){
@@ -18,21 +18,26 @@ public class BigEnemy : Enemy {
 
 	public override void Init ()
 	{
-
 		myCollider = this.GetComponent<Collider2D> ();
 		rigidBody = this.GetComponent<Rigidbody2D> ();
 		animator = this.GetComponent<Animator> ();
 		currentHealth = maxHealth;
 		moveSpeed = startMovespeed;
-		reeling = false;	
+		currentState = EnemyStates.Walking;
 		myCollider.enabled = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (!reeling && currentHealth > 0) {
-			rigidBody.velocity = new Vector2 (moveSpeed, 0);
-		} else {
+
+		animator.SetBool ("Attacking", (currentState == EnemyStates.Attacking));
+
+
+		CheckAttack ();
+		if (currentState == EnemyStates.Walking && currentHealth > 0) {
+			rigidBody.velocity = new Vector2 (moveSpeed, rigidBody.velocity.y);
+		} 
+		else {
 			rigidBody.velocity = Vector2.zero;
 		}
 	}
@@ -49,25 +54,26 @@ public class BigEnemy : Enemy {
 	}
 
 	void OnStartHit(){
-		reeling = true;
+		//reeling = true;
+		currentState = EnemyStates.Standing;
 	}
 
 	void OnEndHit(){
-		reeling = false;
+		//reeling = false;
+		//currentState = EnemyStates.Walking;
+		CheckAttack();
 		animator.SetBool ("Reeling", false);
 	}
 
 	protected override void OnStartDie(){
+		base.OnStartDie ();
 		myCollider.enabled = false;
 	}
 
-	protected override void OnEndDie(){
-		gameObject.SetActive (false);
-	}
 
 
 	void OnCollisionEnter2D(Collision2D col){
-		if (!reeling && col.rigidbody!=null) {
+		if (currentState != EnemyStates.Standing && col.rigidbody!=null) {
 			TakeDamage (col.rigidbody.velocity.magnitude);
 		}
 	}

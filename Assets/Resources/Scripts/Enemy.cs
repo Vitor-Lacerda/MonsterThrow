@@ -10,22 +10,32 @@ public class Enemy : MonoBehaviour {
 		Dragging,
 		Falling,
 		Standing,
+		Attacking,
 		Dead
 	}
 
-
+	[Header("Attributes")]
 	public float maxHealth = 10;
 	public float startMovespeed = 10;
 	public float groundCheckRange = 0.5f;
+
+	[Header("Drag properties")]
 	public float intensity, drag;
+
+	[Header("Attack properties")]
+	public float attackRange = 1;
+	public float attackDamage = 1;
 
 	protected EnemyStates currentState;
 	protected Rigidbody2D rigidBody;
 	protected Animator animator;
 	protected Collider2D myCollider;
+	public Castle castle{ protected get; set; }
 
 	protected float currentHealth = 0;
 	protected float moveSpeed = 0;
+	protected float maxHeight = 0;
+	protected float startHeight = 0;
 
 	void Awake(){
 		
@@ -36,6 +46,9 @@ public class Enemy : MonoBehaviour {
 	}
 
 	public virtual void Init(){
+
+		//castle = GameObject.Find ("Castelo"); //Pegar de outro jeito depois
+
 		rigidBody = this.GetComponent<Rigidbody2D> ();
 		animator = this.GetComponent<Animator> ();
 		myCollider = this.GetComponent<Collider2D> ();
@@ -44,31 +57,40 @@ public class Enemy : MonoBehaviour {
 		currentState = EnemyStates.Walking;
 		animator.SetFloat ("Health", currentHealth);
 		myCollider.enabled = true;
+		maxHeight = 0;
+		startHeight = transform.position.y;
 	}
 
 	void Update () {
 		bool grounded = IsGrounded ();
 		animator.SetBool ("Grounded", grounded);
 		animator.SetFloat ("YVelocity", rigidBody.velocity.y);
+		animator.SetBool ("Attacking", (currentState == EnemyStates.Attacking));
+
 
 		if (currentState == EnemyStates.Walking) {
 			if (grounded) {
-				rigidBody.velocity = new Vector2 (moveSpeed, 0);
+				rigidBody.velocity = new Vector2 (moveSpeed, rigidBody.velocity.y);
+				CheckAttack ();
 			} else {
 				currentState = EnemyStates.Falling;
 			}
-		} 
-
-		else if (currentState == EnemyStates.Falling) {
+		} else if (currentState == EnemyStates.Falling) {
+			if (transform.position.y - startHeight > maxHeight) {
+				maxHeight = transform.position.y - startHeight;
+			}
 			if (grounded) {
 				//currentState = EnemyStates.Walking;
-				Fall();
+				Fall ();
+			}
+		} else if (currentState == EnemyStates.Attacking) {
+			
+			if (!grounded) {
+				currentState = EnemyStates.Falling;
 			}
 		}
 
 		myCollider.enabled = !(currentState == EnemyStates.Dragging);
-
-
 	}
 
 	void FixedUpdate(){
@@ -89,12 +111,21 @@ public class Enemy : MonoBehaviour {
 	}
 	*/
 
+	protected void CheckAttack(){
+		if (Vector2.Distance (transform.position, castle.transform.position) <= attackRange) {
+			currentState = EnemyStates.Attacking;
+		} else {
+			currentState = EnemyStates.Walking;
+		}
+	}
+
 	public void Grab(){
 		if (currentState == EnemyStates.Dead) {
 			return;
 		}
 		currentState = EnemyStates.Dragging;
 		animator.SetBool ("Dragging", true);
+		maxHeight = 0;
 	}
 
 	public void Release(){
@@ -110,7 +141,9 @@ public class Enemy : MonoBehaviour {
 	}
 
 	protected void Fall(){
-		TakeDamage (rigidBody.velocity.magnitude);
+		Debug.Log (maxHeight);
+		TakeDamage (maxHeight);
+		maxHeight = 0;
 	}
 
 	/*A maquina de estados do animador cuida pra ver se levanta ou morre
@@ -120,7 +153,8 @@ public class Enemy : MonoBehaviour {
 	}
 
 	protected void OnEndStandUp(){
-		currentState = EnemyStates.Walking;
+		//currentState = EnemyStates.Walking;
+		CheckAttack();
 	}
 
 
@@ -131,6 +165,11 @@ public class Enemy : MonoBehaviour {
 
 	protected virtual void OnEndDie(){
 		gameObject.SetActive (false);
+		GameObject.FindObjectOfType<EnemySpawner> ().enemyCount--;
+	}
+
+	protected virtual void OnAttackHit(){
+		castle.Damage (attackDamage);
 	}
 
 	protected virtual void TakeDamage(float damage){

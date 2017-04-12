@@ -50,6 +50,7 @@ public class ObjectPooler : MonoBehaviour {
 			newObject = Instantiate (prefab, position, rotation) as T;
 			list.Add (newObject.gameObject);
 			instance.objectLookup [name] = list;
+			return (T)newObject;
 
 		} else {
 			StartPool<T> (prefab);
@@ -58,7 +59,6 @@ public class ObjectPooler : MonoBehaviour {
 			return newObject;
 		}
 
-		return prefab;
 
 	}
 
