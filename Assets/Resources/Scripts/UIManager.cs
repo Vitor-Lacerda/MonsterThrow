@@ -9,6 +9,8 @@ public class UIManager : MonoBehaviour {
 
 	public Image healthBar;
 
+	public GameObject endLevelPanel;
+
 	void Awake(){
 		if (instance == null) {
 			instance = this;
@@ -19,5 +21,11 @@ public class UIManager : MonoBehaviour {
 		float p = Mathf.Clamp (proportion, 0, 1);
 		healthBar.rectTransform.localScale = new Vector2 (p, healthBar.rectTransform.localScale.y);
 	}
+
+	public void EndLevel(){
+		endLevelPanel.SetActive (true);
+	}
+
+
 
 }

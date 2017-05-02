@@ -56,6 +56,7 @@ public class Enemy : MonoBehaviour {
 		moveSpeed = startMovespeed;
 		currentState = EnemyStates.Walking;
 		animator.SetFloat ("Health", currentHealth);
+
 		myCollider.enabled = true;
 		maxHeight = 0;
 		startHeight = transform.position.y;
@@ -99,17 +100,7 @@ public class Enemy : MonoBehaviour {
 		}
 	}
 
-	//Trocar depois
-	/*
-	void OnMouseDown(){
-		Grab ();
 
-	}
-
-	void OnMouseUp(){
-		Release ();
-	}
-	*/
 
 	protected void CheckAttack(){
 		if (Vector2.Distance (transform.position, castle.transform.position) <= attackRange) {
