@@ -25,25 +25,33 @@ public class BigEnemy : Enemy {
 		moveSpeed = startMovespeed;
 		currentState = EnemyStates.Walking;
 		myCollider.enabled = true;
+		transform.position = new Vector3 (transform.position.x, -3.91f,  -3.91f);
+		startHeight = transform.position.y;
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
+		bool grounded = IsGrounded ();
+
 		animator.SetBool ("Attacking", (currentState == EnemyStates.Attacking));
 
 
-		CheckAttack ();
+		//CheckAttack ();
 		if (currentState == EnemyStates.Walking && currentHealth > 0) {
-			rigidBody.velocity = new Vector2 (moveSpeed, rigidBody.velocity.y);
+			rigidBody.velocity = new Vector2 (moveSpeed, 0);
 		} 
 		else {
 			rigidBody.velocity = Vector2.zero;
 		}
+
+		rigidBody.gravityScale = grounded ? 0f : 1f;
+
 	}
 
 
-	protected override void TakeDamage(float damage){
+	public override void TakeDamage(float damage){
 		Debug.Log (damage);
 		currentHealth -= damage;
 		if (currentHealth <= 0) {

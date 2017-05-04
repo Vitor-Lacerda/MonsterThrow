@@ -46,9 +46,6 @@ public class Enemy : MonoBehaviour {
 	}
 
 	public virtual void Init(){
-
-		//castle = GameObject.Find ("Castelo"); //Pegar de outro jeito depois
-
 		rigidBody = this.GetComponent<Rigidbody2D> ();
 		animator = this.GetComponent<Animator> ();
 		myCollider = this.GetComponent<Collider2D> ();
@@ -71,7 +68,7 @@ public class Enemy : MonoBehaviour {
 
 		if (currentState == EnemyStates.Walking) {
 			if (grounded) {
-				rigidBody.velocity = new Vector2 (moveSpeed, rigidBody.velocity.y);
+				rigidBody.velocity = new Vector2 (moveSpeed, /*rigidBody.velocity.y*/ 0);
 				CheckAttack ();
 			} else {
 				currentState = EnemyStates.Falling;
@@ -85,13 +82,19 @@ public class Enemy : MonoBehaviour {
 				Fall ();
 			}
 		} else if (currentState == EnemyStates.Attacking) {
-			
-			if (!grounded) {
+
+			if (grounded) {
+				rigidBody.velocity = Vector2.zero;
+				CheckAttack ();
+			}
+			else {
 				currentState = EnemyStates.Falling;
 			}
 		}
 
-		myCollider.enabled = !(currentState == EnemyStates.Dragging);
+		rigidBody.gravityScale = grounded ? 0f : 1f;
+		//myCollider.enabled = !(currentState == EnemyStates.Dragging);
+		myCollider.isTrigger = !(currentState == EnemyStates.Falling);
 	}
 
 	void FixedUpdate(){
@@ -135,6 +138,7 @@ public class Enemy : MonoBehaviour {
 		Debug.Log (maxHeight);
 		TakeDamage (maxHeight);
 		maxHeight = 0;
+		rigidBody.velocity = Vector2.zero;
 	}
 
 	/*A maquina de estados do animador cuida pra ver se levanta ou morre
@@ -152,6 +156,7 @@ public class Enemy : MonoBehaviour {
 
 	protected virtual void OnStartDie(){
 		currentState = EnemyStates.Dead;
+		rigidBody.velocity = Vector2.zero;
 	}
 
 	protected virtual void OnEndDie(){
@@ -163,12 +168,13 @@ public class Enemy : MonoBehaviour {
 		castle.Damage (attackDamage);
 	}
 
-	protected virtual void TakeDamage(float damage){
+	public virtual void TakeDamage(float damage){
 		currentHealth -= damage;
 		animator.SetFloat ("Health", currentHealth);
 	}
 
 	protected bool IsGrounded(){
+		/*
 		RaycastHit2D hit;
 		Debug.DrawRay (transform.position, Vector2.down * (groundCheckRange), Color.white);
 		hit = Physics2D.Raycast (transform.position, Vector2.down, groundCheckRange, LayerMask.GetMask ("Chao"));
@@ -177,6 +183,9 @@ public class Enemy : MonoBehaviour {
 		}
 
 		return false;
+		*/
+
+		return (transform.position.y <= startHeight);
 	}
 
 	/*
