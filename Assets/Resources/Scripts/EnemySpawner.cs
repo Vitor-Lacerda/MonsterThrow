@@ -12,9 +12,25 @@ public class EnemySpawner : MonoBehaviour {
 
 	public Transform enemyStartPoint;
 
+	List<Enemy> enemies;
+
+	void Awake(){
+		enemies = new List<Enemy> ();
+	}
+
+	public void Reset(){
+		foreach (Enemy e in enemies) {
+			e.gameObject.SetActive (false);
+		}
+		enemyCount = 0;
+	}
+
 	public void Spawn(Enemy prefab){
 		float newY = Random.Range (lowerHeight, upperHeight);
 		Enemy newEnemy = ObjectPooler.Spawn<Enemy> (prefab, new Vector3(enemyStartPoint.position.x, newY, newY) );
+		if (!enemies.Contains (newEnemy)) {
+			enemies.Add (newEnemy);
+		}
 		newEnemy.castle = castle;
 		newEnemy.Init ();
 		enemyCount++;

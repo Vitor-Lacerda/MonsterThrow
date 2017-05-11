@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Castle : MonoBehaviour {
 	[Header("Castle")]
-	public float maxHealth = 100;
+	public float startMaxHealth = 100;
 	public float maxWalls = 100;
 
 	[Header("Prefabs")]
@@ -14,6 +14,9 @@ public class Castle : MonoBehaviour {
 	[Header("Positions")]
 	public Transform[] archerPositions;
 	public Transform[] builderPositions;
+
+	[Header("Managers")]
+	public LevelManager levelManager;
 
 	float _walls;
 
@@ -27,6 +30,7 @@ public class Castle : MonoBehaviour {
 		}
 	}
 
+	float maxHealth;
 
 	float _currentHealth;
 
@@ -48,7 +52,23 @@ public class Castle : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		currentHealth = maxHealth;
+		currentHealth = startMaxHealth;
+		maxHealth = startMaxHealth;
+		archers = new List<Archer> ();
+		builders = new List<Builder> ();
+	}
+
+	public void Reset(){
+		currentHealth = startMaxHealth;
+		maxHealth = startMaxHealth;
+		walls = 0;
+		foreach (Archer a in archers) {
+			a.gameObject.SetActive (false);
+		}
+		foreach (Builder a in builders) {
+			a.gameObject.SetActive (false);
+		}
+
 		archers = new List<Archer> ();
 		builders = new List<Builder> ();
 	}
@@ -59,6 +79,9 @@ public class Castle : MonoBehaviour {
 		} else {
 			currentHealth -= value;
 		}
+		if (currentHealth <= 0) {
+			levelManager.EndGame ();
+		}
 	}
 
 	public void Fix(float value){
@@ -67,7 +90,7 @@ public class Castle : MonoBehaviour {
 	}
 
 	public void ImproveCastle(float value){
-		maxHealth += value;
+		startMaxHealth += value;
 		currentHealth += value;
 	}
 

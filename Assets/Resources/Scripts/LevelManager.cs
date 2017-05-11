@@ -60,6 +60,15 @@ public class LevelManager : MonoBehaviour {
 		UIManager.instance.EndLevel ();
 	}
 
+	public void EndGame(){
+		UIManager.instance.EndGame ();
+		StopCoroutine ("RunLevel");
+	}
+
+	public void ResetGame(){
+		enemySpawner.Reset ();
+	}
+
 	IEnumerator RunLevel(Queue<Enemy> enemyQueue, float spawnInterval){
 		while (enemyQueue.Count > 0) {
 			enemySpawner.Spawn (enemyQueue.Dequeue ());

@@ -11,6 +11,7 @@ public class UIManager : MonoBehaviour {
 	public Image wallsBar;
 
 	public GameObject endLevelPanel;
+	public GameObject defeatPanel;
 
 	void Awake(){
 		if (instance == null) {
@@ -30,6 +31,11 @@ public class UIManager : MonoBehaviour {
 
 	public void EndLevel(){
 		endLevelPanel.SetActive (true);
+	}
+
+	public void EndGame(){
+		endLevelPanel.SetActive (false);
+		defeatPanel.SetActive (true);
 	}
 
 
