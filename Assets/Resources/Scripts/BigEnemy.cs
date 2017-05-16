@@ -78,6 +78,13 @@ public class BigEnemy : Enemy {
 		myCollider.enabled = false;
 	}
 
+	protected override void OnEndDie ()
+	{
+		base.OnEndDie ();
+		GameObject.FindObjectOfType<EnemySpawner> ().bigEnemyCount--;
+
+	}
+
 
 
 	void OnCollisionEnter2D(Collision2D col){

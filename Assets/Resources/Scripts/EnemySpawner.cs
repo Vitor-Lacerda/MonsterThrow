@@ -7,6 +7,7 @@ public class EnemySpawner : MonoBehaviour {
 	public Castle castle;
 
 	public int enemyCount = 0;
+	public int bigEnemyCount = 0;
 	public float lowerHeight;
 	public float upperHeight;
 
@@ -34,5 +35,8 @@ public class EnemySpawner : MonoBehaviour {
 		newEnemy.castle = castle;
 		newEnemy.Init ();
 		enemyCount++;
+		if (newEnemy is BigEnemy) {
+			bigEnemyCount++;
+		}
 	}
 }

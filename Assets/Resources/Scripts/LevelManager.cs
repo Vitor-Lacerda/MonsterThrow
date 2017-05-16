@@ -1,29 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour {
 
 	[System.Serializable]
-	public struct LevelEnemies
+	public struct EnemyConfig //Tinha que virar um arquivo config depois.
 	{
 		public Enemy enemyPrefab;
-		public int quantity;
+		public int firstLevel;
+		public float minPercentage;
+		public float maxPercentage;
 	}
 
 	[System.Serializable]
-	public struct LevelInfo
+	public struct BossLevelInfo
 	{
-		public List<LevelEnemies> enemies;
-		public float enemySpawnInterval;
+		public Enemy boss;
+		public int level;
+		public Enemy[] minions;
 	}
 
+	[Header("Properties")]
+	public float enemySpawnInterval;
+	public int baseEnemyAmount = 10;
+	public int enemiesPerLevel = 5;
+
+	[Header("Info")]
 	public EnemySpawner enemySpawner;
-	public List<LevelInfo> levels;
+	public List<EnemyConfig> enemyConfig; //Tem que resgatar de um arquivo depois?
+	public List<BossLevelInfo> bossesConfig;
 
 
 
-	int currentLevel = -1;
+
+	int currentLevel = 0;
 
 	void Start () {
 	}
@@ -33,26 +45,43 @@ public class LevelManager : MonoBehaviour {
 	}
 
 	public void NextLevel(){
-		if (currentLevel + 1 < levels.Count) {
-			StartLevel (currentLevel + 1);
-		}
+		MakeLevelList (currentLevel + 1);
 	}
 
-	void StartLevel(int index){
-		Debug.Log ("Começou nivel " + index.ToString());
+	void MakeLevelList(int level){
+		Debug.Log ("Começou nivel " + level.ToString());
 		enemySpawner.enemyCount = 0;
-		Queue<Enemy> enemyQueue = new Queue<Enemy> ();
-		LevelInfo level = levels [index];
-
-		foreach (LevelEnemies e in level.enemies) {
-			for (int i = 0; i < e.quantity; i++) {
-				enemyQueue.Enqueue (e.enemyPrefab);
+		List<Enemy> enemyQueue = new List<Enemy> ();
+		List<EnemyConfig> possibleEnemies = enemyConfig.Where (x => x.firstLevel <= level).OrderByDescending (enemy => enemy.firstLevel).ToList ();
+		int levelEnemyCount = baseEnemyAmount + enemiesPerLevel * level;
+		int c = 0;
+		float remainingPercent = 100;
+		while (c < possibleEnemies.Count && remainingPercent > 0) {
+			if (remainingPercent >= possibleEnemies [c].minPercentage) {
+				float high = Mathf.Min (remainingPercent, possibleEnemies [c].maxPercentage);
+				float p = Random.Range (possibleEnemies [c].minPercentage, high);
+				int amount = Mathf.FloorToInt (levelEnemyCount * p / 100);
+				for (int i = 0; i < amount; i++) {
+					enemyQueue.Add (possibleEnemies [c].enemyPrefab);
+				}
+				remainingPercent -= p;
 			}
+			c++;
+		}
+		if (remainingPercent > 0) {
+			int amount = Mathf.FloorToInt (levelEnemyCount * remainingPercent / 100);
+			for (int i = 0; i < amount; i++) {
+				enemyQueue.Add (possibleEnemies.Last().enemyPrefab);
+			}
+			remainingPercent = 0;
 		}
 
-		currentLevel = index;
 
-		StartCoroutine (RunLevel(enemyQueue, level.enemySpawnInterval));
+
+
+		StartCoroutine (RunLevel(enemyQueue, enemySpawnInterval, level));
+		currentLevel = level;
+
 	}
 
 	void EndLevel(){
@@ -69,11 +98,35 @@ public class LevelManager : MonoBehaviour {
 		enemySpawner.Reset ();
 	}
 
-	IEnumerator RunLevel(Queue<Enemy> enemyQueue, float spawnInterval){
-		while (enemyQueue.Count > 0) {
-			enemySpawner.Spawn (enemyQueue.Dequeue ());
+	IEnumerator RunLevel(List<Enemy> enemyQueue, float spawnInterval, int level){
+		int c = 0;
+		List<Enemy> shuffledList = enemyQueue.OrderBy (x => Random.value).ToList ();
+		while (c < shuffledList.Count) {
+			Enemy newenemy = shuffledList [c];
+			enemySpawner.Spawn (newenemy);
+			c++;
 			yield return new WaitForSeconds (spawnInterval);
 		}
+
+		while (enemySpawner.bigEnemyCount > 0) {
+			Enemy newenemy = enemyQueue [Random.Range(0, shuffledList.Count)];
+			enemySpawner.Spawn (newenemy);
+			yield return new WaitForSeconds (spawnInterval);
+		}
+
+		bool b = bossesConfig.Any (x => x.level == level);
+		if (b) {
+			BossLevelInfo bossInfo = bossesConfig.First (x => x.level == level);
+			Debug.Log ("BOSS");
+			enemySpawner.Spawn (bossInfo.boss);
+			yield return new WaitForSeconds (spawnInterval);
+			while (enemySpawner.bigEnemyCount > 0) {
+				enemySpawner.Spawn (bossInfo.minions [Random.Range (0, bossInfo.minions.Length)]);
+				yield return new WaitForSeconds (spawnInterval);
+
+			}
+		}
+
 
 		while (enemySpawner.enemyCount > 0) {
 			yield return null;
