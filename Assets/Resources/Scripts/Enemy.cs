@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour {
+public class Enemy : MonoBehaviour, IDamageable {
 
 	protected enum EnemyStates
 	{
@@ -136,7 +136,7 @@ public class Enemy : MonoBehaviour {
 
 	protected void Fall(){
 		Debug.Log (maxHeight);
-		TakeDamage (maxHeight);
+		Damage (maxHeight);
 		maxHeight = 0;
 		rigidBody.velocity = Vector2.zero;
 	}
@@ -168,8 +168,14 @@ public class Enemy : MonoBehaviour {
 		castle.Damage (attackDamage);
 	}
 
-	public virtual void TakeDamage(float damage){
+	public virtual void Damage(float damage){
 		currentHealth -= damage;
+		animator.SetFloat ("Health", currentHealth);
+	}
+
+	public virtual void Heal(float heal){
+		currentHealth += heal;
+		currentHealth = Mathf.Clamp (currentHealth, 0, maxHealth);
 		animator.SetFloat ("Health", currentHealth);
 	}
 
@@ -185,7 +191,7 @@ public class Enemy : MonoBehaviour {
 		return false;
 		*/
 
-		return (transform.position.y <= startHeight);
+		return (transform.position.y  <= startHeight);
 	}
 
 	/*

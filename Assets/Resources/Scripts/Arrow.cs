@@ -5,14 +5,15 @@ using UnityEngine;
 public class Arrow : MonoBehaviour {
 
 	public float moveSpeed;
-	Enemy target;
+	IDamageable target;
 	Vector3 targetPosition;
 	Vector3 travelDirection;
 	float damage;
 
-	public void Init(Enemy t, float dmg){
+	public void Init(IDamageable t, float dmg){
 		target = t;
-		targetPosition = t.transform.position;
+		MonoBehaviour mb = t as MonoBehaviour;
+		targetPosition = mb.transform.position;
 		travelDirection = targetPosition - transform.position;
 		damage = dmg;
 		gameObject.SetActive (true);
@@ -29,8 +30,8 @@ public class Arrow : MonoBehaviour {
 	}
 
 	void OnTriggerEnter2D(Collider2D other){
-		if (other.GetComponent<Enemy>() != null) {
-			other.GetComponent<Enemy> ().TakeDamage (damage);
+		if (other.GetComponent<IDamageable>() == target) {
+			target.Damage (damage);
 			gameObject.SetActive (false);
 		}
 	}

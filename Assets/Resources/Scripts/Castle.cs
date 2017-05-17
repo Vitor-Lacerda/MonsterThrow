@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Castle : MonoBehaviour {
+public class Castle : MonoBehaviour, IDamageable {
 	[Header("Castle")]
 	public float startMaxHealth = 100;
 	public float maxWalls = 100;
@@ -84,7 +84,7 @@ public class Castle : MonoBehaviour {
 		}
 	}
 
-	public void Fix(float value){
+	public void Heal(float value){
 		currentHealth += value;
 		currentHealth = Mathf.Clamp (currentHealth, 0, maxHealth);
 	}

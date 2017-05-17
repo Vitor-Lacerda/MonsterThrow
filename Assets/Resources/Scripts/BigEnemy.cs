@@ -51,7 +51,7 @@ public class BigEnemy : Enemy {
 	}
 
 
-	public override void TakeDamage(float damage){
+	public override void Damage(float damage){
 		Debug.Log (damage);
 		currentHealth -= damage;
 		if (currentHealth <= 0) {
@@ -89,7 +89,7 @@ public class BigEnemy : Enemy {
 
 	void OnCollisionEnter2D(Collision2D col){
 		if (currentState != EnemyStates.Standing && col.rigidbody!=null) {
-			TakeDamage (col.rigidbody.velocity.magnitude);
+			Damage (col.rigidbody.velocity.magnitude);
 		}
 	}
 }

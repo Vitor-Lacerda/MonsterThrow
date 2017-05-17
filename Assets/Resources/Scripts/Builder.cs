@@ -17,7 +17,7 @@ public class Builder : MonoBehaviour {
 
 	void Update () {
 		if (Time.time - fixTime >= fixRate) {
-			castle.Fix (fixAmount);
+			castle.Heal (fixAmount);
 			fixTime = Time.time;
 		}
 	}
