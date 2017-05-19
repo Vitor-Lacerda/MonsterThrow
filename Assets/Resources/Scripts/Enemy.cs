@@ -19,12 +19,16 @@ public class Enemy : MonoBehaviour, IDamageable {
 	public float startMovespeed = 10;
 	public float groundCheckRange = 0.5f;
 
+
 	[Header("Drag properties")]
 	public float intensity, drag;
 
 	[Header("Attack properties")]
 	public float attackRange = 1;
 	public float attackDamage = 1;
+
+	[Header("Other")]
+	public int goldReward = 1;
 
 	protected EnemyStates currentState;
 	protected Rigidbody2D rigidBody;
@@ -162,6 +166,7 @@ public class Enemy : MonoBehaviour, IDamageable {
 	protected virtual void OnEndDie(){
 		gameObject.SetActive (false);
 		GameObject.FindObjectOfType<EnemySpawner> ().enemyCount--;
+		GoldManager.instance.EarnGold (goldReward);
 	}
 
 	protected virtual void OnAttackHit(){

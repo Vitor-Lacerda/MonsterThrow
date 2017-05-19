@@ -10,6 +10,9 @@ public class UIManager : MonoBehaviour {
 	public Image healthBar;
 	public Image wallsBar;
 
+	public Text goldText;
+
+
 	public GameObject endLevelPanel;
 	public GameObject defeatPanel;
 
