@@ -13,10 +13,9 @@ public class BigEnemy : Enemy {
 	}
 
 	void Start () {
-		Init ();
 	}
 
-	public override void Init ()
+	public override void Init (float startY, Vector3 startForce)
 	{
 		myCollider = this.GetComponent<Collider2D> ();
 		rigidBody = this.GetComponent<Rigidbody2D> ();
@@ -26,7 +25,7 @@ public class BigEnemy : Enemy {
 		currentState = EnemyStates.Walking;
 		myCollider.enabled = true;
 		transform.position = new Vector3 (transform.position.x, -3.91f,  -3.91f);
-		startHeight = transform.position.y;
+		startHeight = startY;
 
 	}
 	
@@ -37,8 +36,11 @@ public class BigEnemy : Enemy {
 
 		animator.SetBool ("Attacking", (currentState == EnemyStates.Attacking));
 
+		if (currentState != EnemyStates.Standing) {
+			CheckAttack ();
 
-		//CheckAttack ();
+		}
+
 		if (currentState == EnemyStates.Walking && currentHealth > 0) {
 			rigidBody.velocity = new Vector2 (moveSpeed, 0);
 		} 
@@ -61,12 +63,12 @@ public class BigEnemy : Enemy {
 		}
 	}
 
-	void OnStartHit(){
+	protected virtual void OnStartHit(){
 		//reeling = true;
 		currentState = EnemyStates.Standing;
 	}
 
-	void OnEndHit(){
+	protected virtual void OnEndHit(){
 		//reeling = false;
 		//currentState = EnemyStates.Walking;
 		CheckAttack();

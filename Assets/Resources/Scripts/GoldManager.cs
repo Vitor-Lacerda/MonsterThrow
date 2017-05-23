@@ -6,7 +6,10 @@ public class GoldManager : MonoBehaviour {
 
 	public static GoldManager instance;
 
-	int currentGold;
+	public int currentGold {
+		get;
+		protected set;
+	}
 
 
 	void Awake(){

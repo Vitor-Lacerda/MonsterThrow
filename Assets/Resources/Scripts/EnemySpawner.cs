@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour {
 
+	public static EnemySpawner instance;
+
 	public Castle castle;
 
 	public int enemyCount = 0;
@@ -16,6 +18,9 @@ public class EnemySpawner : MonoBehaviour {
 	List<Enemy> enemies;
 
 	void Awake(){
+		if (instance == null) {
+			instance = this;
+		}
 		enemies = new List<Enemy> ();
 	}
 
@@ -26,17 +31,35 @@ public class EnemySpawner : MonoBehaviour {
 		enemyCount = 0;
 	}
 
-	public void Spawn(Enemy prefab){
-		float newY = Random.Range (lowerHeight, upperHeight);
-		Enemy newEnemy = ObjectPooler.Spawn<Enemy> (prefab, new Vector3(enemyStartPoint.position.x, newY, newY) );
+
+
+
+
+	public Enemy Spawn (Enemy prefab, Vector3 position, Vector3 force){
+		Enemy newEnemy = ObjectPooler.Spawn<Enemy> (prefab, position);
+		float startY = position.y;
+		if (startY > upperHeight) {
+			startY = Random.Range (lowerHeight, upperHeight);
+		}
 		if (!enemies.Contains (newEnemy)) {
 			enemies.Add (newEnemy);
 		}
 		newEnemy.castle = castle;
-		newEnemy.Init ();
+		newEnemy.Init (startY, force);
 		enemyCount++;
 		if (newEnemy is BigEnemy) {
 			bigEnemyCount++;
 		}
+
+		return newEnemy;
+	}
+
+	public Enemy Spawn(Enemy prefab, Vector3 position){
+		return Spawn (prefab, position, Vector3.zero);
+	}
+
+	public Enemy Spawn(Enemy prefab){
+		float newY = Random.Range (lowerHeight, upperHeight);
+		return Spawn (prefab, new Vector3 (enemyStartPoint.position.x, newY, newY));
 	}
 }

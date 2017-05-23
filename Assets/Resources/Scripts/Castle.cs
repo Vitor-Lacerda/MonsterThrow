@@ -47,8 +47,14 @@ public class Castle : MonoBehaviour, IDamageable {
 
 	}
 
-	List<Archer> archers;
-	List<Builder> builders;
+	public List<Archer> archers {
+		get;
+		protected set;
+	}
+	public List<Builder> builders{
+		get;
+		protected set;
+	}
 
 	// Use this for initialization
 	void Start () {

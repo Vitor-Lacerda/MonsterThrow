@@ -28,30 +28,35 @@ public class UpgradeManager : MonoBehaviour {
 		if (SpendGold (fixPrice)) {
 			castle.Heal (fixAmount);
 		}
+		UIManager.instance.UpdateUpgradeButtons ();
 	}
 
 	public void ImproveCastle(){
 		if (SpendGold (improvePrice)) {
 			castle.ImproveCastle (improveAmount);
 		}
+		UIManager.instance.UpdateUpgradeButtons ();
 	}
 
 	public void RaiseWalls(){
 		if (SpendGold (wallsPrice)) {
 			castle.RaiseWalls (wallAmount);
 		}
+		UIManager.instance.UpdateUpgradeButtons ();
 	}
 
 	public void HireArcher(){
 		if (SpendGold (archerPrice)) {
 			castle.HireArcher();
 		}
+		UIManager.instance.UpdateUpgradeButtons ();
 	}
 
 	public void HireBuilder(){
 		if (SpendGold (builderPrice)) {
 			castle.HireBuilder();
 		}
+		UIManager.instance.UpdateUpgradeButtons ();
 	}
 
 

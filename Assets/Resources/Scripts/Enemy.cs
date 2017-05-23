@@ -21,7 +21,8 @@ public class Enemy : MonoBehaviour, IDamageable {
 
 
 	[Header("Drag properties")]
-	public float intensity, drag;
+	public float intensity;
+	public float drag;
 
 	[Header("Attack properties")]
 	public float attackRange = 1;
@@ -46,21 +47,21 @@ public class Enemy : MonoBehaviour, IDamageable {
 	}
 		
 	void Start () {
-		Init ();
 	}
 
-	public virtual void Init(){
+	public virtual void Init(float startY, Vector3 startForce){
 		rigidBody = this.GetComponent<Rigidbody2D> ();
 		animator = this.GetComponent<Animator> ();
 		myCollider = this.GetComponent<Collider2D> ();
 		currentHealth = maxHealth;
 		moveSpeed = startMovespeed;
-		currentState = EnemyStates.Walking;
 		animator.SetFloat ("Health", currentHealth);
 
 		myCollider.enabled = true;
 		maxHeight = 0;
-		startHeight = transform.position.y;
+		startHeight = startY;
+		rigidBody.AddForce (startForce, ForceMode2D.Impulse);
+		currentState = IsGrounded()?EnemyStates.Walking:EnemyStates.Falling;
 	}
 
 	void Update () {
