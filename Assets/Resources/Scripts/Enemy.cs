@@ -23,6 +23,7 @@ public class Enemy : MonoBehaviour, IDamageable {
 	[Header("Drag properties")]
 	public float intensity;
 	public float drag;
+	public Rigidbody2D torso;
 
 	[Header("Attack properties")]
 	public float attackRange = 1;
@@ -136,7 +137,8 @@ public class Enemy : MonoBehaviour, IDamageable {
 		Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 		Vector2 vel = mousePos - (Vector2)transform.position;
 		vel.Normalize ();
-		rigidBody.velocity = Vector2.Lerp(rigidBody.velocity, vel*intensity, drag*Time.deltaTime); 
+		rigidBody.velocity = Vector2.Lerp(rigidBody.velocity, vel*intensity, drag*Time.deltaTime);
+
 	}
 
 	protected void Fall(){
