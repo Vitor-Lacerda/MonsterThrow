@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 803baf1ea73913f46b25e07d0a79df22
-timeCreated: 1491943980
+timeCreated: 1507123238
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -288,7 +288,7 @@ TextureImporter:
       name: RobotBoyRunSprite_11
       rect:
         serializedVersion: 2
-        x: 1100
+        x: 1103
         y: 1498
         width: 275
         height: 275
